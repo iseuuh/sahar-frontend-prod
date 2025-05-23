@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Cormorant Garamond', serif;
+  background: #0D0D0D;
+  color: #C9A66B;
+}
+
+h1, h2, h3 {
+  font-family: 'Playfair Display', serif;
+}
+
+.bg-marble {
+  background-size: cover;
+  background-position: center;
+}
