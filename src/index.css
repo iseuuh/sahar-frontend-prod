@@ -2,10 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
+html, body {
   font-family: 'Cormorant Garamond', serif;
   background: #0D0D0D;
   color: #C9A66B;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  min-height: 100vh;
+  background: #0D0D0D;
 }
 
 h1, h2, h3 {
@@ -15,4 +23,20 @@ h1, h2, h3 {
 .bg-marble {
   background-size: cover;
   background-position: center;
+}
+
+/* Assurer que tous les éléments de formulaire respectent le thème sombre */
+input, select, textarea {
+  background-color: #0D0D0D !important;
+  color: #C9A66B !important;
+}
+
+/* Améliorer la lisibilité des liens */
+a {
+  color: #C9A66B;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #D79E9E;
 }
