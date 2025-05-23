@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { postReservation } from "../lib/api";
 
 const services = [
-  "Manucure",
+  "Vernis permanent",
   "Pédicure",
   "Nail Art",
   "Gel",
@@ -21,6 +21,7 @@ export default function BookingForm() {
     email: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = e => {
     setData({ ...data, [e.target.name]: e.target.value });
@@ -31,19 +32,22 @@ export default function BookingForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       await postReservation(data);
       setSubmitted(true);
     } catch (err) {
       console.error(err);
       alert("Erreur API : " + err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   if (submitted) {
     return (
-      <div className="bg-noir border border-gold rounded-xl p-6 text-center text-rose shadow-lg max-w-md mx-auto">
-        <h3 className="text-2xl font-bold mb-4">Merci pour votre réservation !</h3>
+      <div className="bg-noir border border-gold rounded-xl p-4 sm:p-6 text-center text-rose shadow-lg max-w-md mx-auto">
+        <h3 className="text-xl sm:text-2xl font-bold mb-4">Merci pour votre réservation !</h3>
         <p className="text-gold">Nous vous contacterons pour confirmer votre rendez-vous.</p>
       </div>
     );
@@ -51,10 +55,10 @@ export default function BookingForm() {
 
   return (
     <form
-      className="bg-noir border border-gold rounded-xl p-6 shadow-lg max-w-md mx-auto"
+      className="bg-noir border border-gold rounded-xl p-4 sm:p-6 shadow-lg max-w-md mx-auto"
       onSubmit={handleSubmit}
     >
-      <h3 className="text-xl font-bold text-gold mb-6">Réservez votre rendez-vous</h3>
+      <h3 className="text-lg sm:text-xl font-bold text-gold mb-4 sm:mb-6">Réservez votre rendez-vous</h3>
 
       {step === 1 && (
         <div>
@@ -77,7 +81,7 @@ export default function BookingForm() {
             type="button"
             onClick={nextStep}
             disabled={!data.service}
-            className="bg-gold text-noir py-3 px-8 rounded-full shadow-lg hover:bg-rose transition"
+            className="w-full sm:w-auto bg-gold text-noir py-2 sm:py-3 px-6 sm:px-8 rounded-full shadow-lg hover:bg-rose transition disabled:opacity-50"
           >
             Suivant
           </button>
@@ -95,6 +99,7 @@ export default function BookingForm() {
               onChange={handleChange}
               className="block w-full mt-2 p-2 rounded bg-noir text-gold border border-gold"
               required
+              min={new Date().toISOString().split('T')[0]}
             />
           </label>
           <label className="block mb-3 text-rose font-semibold">
@@ -108,7 +113,7 @@ export default function BookingForm() {
               required
             />
           </label>
-          <div className="flex justify-between">
+          <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-0">
             <button
               type="button"
               onClick={prevStep}
@@ -120,7 +125,7 @@ export default function BookingForm() {
               type="button"
               onClick={nextStep}
               disabled={!data.date || !data.time}
-              className="bg-gold text-noir py-3 px-8 rounded-full shadow-lg hover:bg-rose transition"
+              className="w-full sm:w-auto bg-gold text-noir py-2 sm:py-3 px-6 sm:px-8 rounded-full shadow-lg hover:bg-rose transition disabled:opacity-50"
             >
               Suivant
             </button>
@@ -139,6 +144,7 @@ export default function BookingForm() {
               onChange={handleChange}
               className="block w-full mt-2 p-2 rounded bg-noir text-gold border border-gold"
               required
+              autoComplete="name"
             />
           </label>
           <label className="block mb-3 text-rose font-semibold">
@@ -150,6 +156,9 @@ export default function BookingForm() {
               onChange={handleChange}
               className="block w-full mt-2 p-2 rounded bg-noir text-gold border border-gold"
               required
+              pattern="[0-9]{10}"
+              title="Veuillez entrer un numéro de téléphone valide (10 chiffres)"
+              autoComplete="tel"
             />
           </label>
           <label className="block mb-3 text-rose font-semibold">
@@ -160,9 +169,10 @@ export default function BookingForm() {
               value={data.email}
               onChange={handleChange}
               className="block w-full mt-2 p-2 rounded bg-noir text-gold border border-gold"
+              autoComplete="email"
             />
           </label>
-          <div className="flex justify-between">
+          <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-0">
             <button
               type="button"
               onClick={prevStep}
@@ -172,9 +182,10 @@ export default function BookingForm() {
             </button>
             <button
               type="submit"
-              className="bg-gold text-noir py-3 px-8 rounded-full shadow-lg hover:bg-rose transition"
+              disabled={isLoading}
+              className="w-full sm:w-auto bg-gold text-noir py-2 sm:py-3 px-6 sm:px-8 rounded-full shadow-lg hover:bg-rose transition disabled:opacity-50"
             >
-              Réserver
+              {isLoading ? "Envoi..." : "Réserver"}
             </button>
           </div>
         </div>
