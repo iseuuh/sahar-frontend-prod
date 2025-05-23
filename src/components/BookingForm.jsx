@@ -1,5 +1,6 @@
 // src/components/BookingForm.jsx
 import React, { useState } from "react";
+import { postReservation } from "../lib/api";
 
 const services = [
   "Manucure",
@@ -30,17 +31,12 @@ export default function BookingForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-  
-    // Envoi des données vers le backend
     try {
-      await fetch("http://localhost:5000/api/reservations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      await postReservation(data);
+      setSubmitted(true);
     } catch (err) {
-      alert("Erreur lors de l'envoi de la réservation. Essayez plus tard.");
+      console.error(err);
+      alert("Erreur API : " + err.message);
     }
   };
 
