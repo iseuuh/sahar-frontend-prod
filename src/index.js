@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+import './lib/api';  // Import de l'API en premier
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
@@ -13,9 +14,6 @@ window.API_URL = API_URL;
 
 // Log pour le débogage
 console.log('API_URL définie dans index.js:', API_URL);
-
-// Import de l'API après la définition de l'URL
-import './lib/api';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
