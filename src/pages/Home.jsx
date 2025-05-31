@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import ServiceCard from "../components/ServiceCard";
 import BookingForm from "../components/BookingForm";
@@ -30,12 +31,12 @@ export default function Home() {
           <p className="mt-4 text-lg md:text-2xl text-rose drop-shadow-lg">
             L'art de sublimer vos mains.
           </p>
-          <a
-            href="#booking"
+          <Link
+            to="/booking"
             className="mt-8 inline-block bg-gold text-noir py-3 px-8 rounded-full text-lg font-semibold shadow-lg hover:bg-rose transition duration-300"
           >
             Réservez maintenant
-          </a>
+          </Link>
         </div>
       </div>
 
