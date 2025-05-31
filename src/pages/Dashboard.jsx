@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getReservations } from '../lib/api';
 import ReservationsTable from '../components/ReservationsTable';
 
 // Utilisation de la variable globale définie dans index.js
@@ -17,49 +18,40 @@ export default function Dashboard() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
+      console.log('Pas de token trouvé, redirection vers /admin');
       navigate('/admin');
       return;
     }
 
-    const controller = new AbortController();
+    const fetchData = async () => {
+      try {
+        console.log('Récupération des réservations...');
+        const response = await getReservations(token);
+        console.log('Réponse API:', response);
 
-    fetch(`${API_URL}/api/reservations`, {
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      signal: controller.signal
-    })
-      .then(async (r) => {
-        if (r.status === 401) {
-          localStorage.removeItem('token');
-          navigate('/admin');
-          throw new Error('Session expirée');
-        }
-        if (!r.ok) {
-          const txt = await r.text();
-          throw new Error(`API ${r.status}: ${txt}`);
-        }
-        return r.json();
-      })
-      .then((json) => {
-        if (!json || !Array.isArray(json.data)) {
+        // Gérer différents formats de réponse
+        const reservations = Array.isArray(response) ? response : 
+                           response.data ? response.data :
+                           response.reservations ? response.reservations : [];
+
+        if (!Array.isArray(reservations)) {
           throw new Error('Format de réponse invalide');
         }
-        setData(json.data);
-      })
-      .catch((err) => {
-        if (err.name === 'AbortError') return;
+
+        setData(reservations);
+      } catch (err) {
         console.error('Erreur Dashboard:', err);
         setError(err.message);
         if (err.message === 'Session expirée') {
+          localStorage.removeItem('token');
           navigate('/admin');
         }
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => controller.abort();
+    fetchData();
   }, [navigate]);
 
   if (loading) {

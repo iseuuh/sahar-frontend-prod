@@ -19,17 +19,24 @@ export default function Admin() {
     setError('');
     setIsLoading(true);
 
+    // Log pour le débogage
+    console.log('Tentative de connexion avec:', {
+      email: 'admin@sahar.com',
+      passwordLength: password.length
+    });
+
     try {
       const data = await login({
         email: 'admin@sahar.com',
-        password: password
+        password: password.trim() // Assurez-vous qu'il n'y a pas d'espaces
       });
 
+      console.log('Réponse de connexion:', data);
       localStorage.setItem('token', data.token);
       navigate('/admin/dashboard');
     } catch (err) {
+      console.error('Erreur détaillée de login:', err);
       setError(err.message);
-      console.error('Erreur de login:', err);
     } finally {
       setIsLoading(false);
     }
