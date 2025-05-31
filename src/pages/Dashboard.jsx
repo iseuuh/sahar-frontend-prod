@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReservationsTable from '../components/ReservationsTable';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://sahar-backend.onrender.com';
+const API_URL = process.env.REACT_APP_API_URL || 'https://sahar-backend.onrender.com';
 
 export default function Dashboard() {
   const [data, setData] = useState([]);
