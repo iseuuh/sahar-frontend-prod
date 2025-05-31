@@ -6,7 +6,10 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 // Définir l'URL de l'API avant le rendu
-window.API_URL = import.meta.env.VITE_API_URL || 'https://sahar-backend.onrender.com';
+window.API_URL = process.env.REACT_APP_API_URL || 'https://sahar-backend.onrender.com';
+
+// Log pour le débogage
+console.log('API_URL:', window.API_URL);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
