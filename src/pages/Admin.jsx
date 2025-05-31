@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = import.meta.env.VITE_API_URL;
-if (!API_URL) {
-  throw new Error("⚠️  VITE_API_URL n'est pas défini");
-}
+// Utilisation d'une valeur par défaut si VITE_API_URL n'est pas défini
+const API_URL = import.meta.env.VITE_API_URL || 'https://sahar-backend.onrender.com';
+
+// Log pour le débogage
+console.log('Admin API_URL:', API_URL);
 
 export default function Admin() {
   const [pwd, setPwd] = useState('');
@@ -40,8 +41,8 @@ export default function Admin() {
       localStorage.setItem('token', token);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message);
       console.error('Erreur de login:', err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
