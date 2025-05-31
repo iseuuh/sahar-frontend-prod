@@ -1,4 +1,7 @@
-const API_URL = process.env.REACT_APP_API_URL || 'https://sahar-backend.onrender.com';
+const API_URL = process.env.REACT_APP_API_URL;
+if (!API_URL) {
+  console.error('REACT_APP_API_URL non définie dans les variables d\'environnement');
+}
 console.log('API URL in api.js:', API_URL);
 
 export const createReservation = async (payload) => {

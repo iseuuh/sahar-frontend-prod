@@ -1,16 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { HashRouter } from 'react-router-dom';
 import './index.css';
-import './lib/api';  // Import de l'API en premier
 import App from './App';
-import { BrowserRouter } from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
 
 // Définition de l'URL de l'API
-const API_URL = process.env.REACT_APP_API_URL || 'https://sahar-backend.onrender.com';
-
-// Définition globale de l'API_URL
-window.API_URL = API_URL;
+const API_URL = process.env.REACT_APP_API_URL;
+if (!API_URL) {
+  console.error('REACT_APP_API_URL non définie dans les variables d\'environnement');
+}
 
 // Log pour le débogage
 console.log('API_URL définie dans index.js:', API_URL);
@@ -18,9 +17,7 @@ console.log('API_URL définie dans index.js:', API_URL);
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <App />
   </React.StrictMode>
 );
 
