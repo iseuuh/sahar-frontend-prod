@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { login } from '../lib/api';
 
 // Utilisation de la variable globale définie dans index.js
 const API_URL = window.API_URL;
@@ -8,67 +9,63 @@ const API_URL = window.API_URL;
 console.log('Admin API_URL:', API_URL);
 
 export default function Admin() {
-  const [pwd, setPwd] = useState('');
-  const [errorMsg, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setIsLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({ email: 'admin@sahar.com', password: pwd })
+      const data = await login({
+        email: 'admin@sahar.com',
+        password: password
       });
 
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(txt || 'Mot de passe incorrect');
-      }
-
-      const { token } = await res.json();
-      if (!token) {
-        throw new Error('Token manquant dans la réponse');
-      }
-
-      localStorage.setItem('token', token);
-      navigate('/dashboard');
+      localStorage.setItem('token', data.token);
+      navigate('/admin/dashboard');
     } catch (err) {
-      console.error('Erreur de login:', err);
       setError(err.message);
+      console.error('Erreur de login:', err);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-noir text-gold">
-      <h1 className="text-3xl mb-6">Accès Admin</h1>
-      <form onSubmit={handleLogin} className="flex flex-col gap-4 w-64">
-        <input
-          type="password"
-          placeholder="Mot de passe"
-          value={pwd}
-          onChange={(e) => setPwd(e.target.value)}
-          className="p-2 rounded bg-gray-800 text-white"
-          required
-        />
-        <button
-          type="submit"
-          disabled={loading || pwd.trim() === ''}
-          className="p-2 bg-gold text-noir rounded font-bold disabled:opacity-50"
-        >
-          {loading ? 'Connexion…' : 'Se connecter'}
-        </button>
-        {errorMsg && <p className="text-red-500 text-center">{errorMsg}</p>}
-      </form>
+    <div className="min-h-screen bg-noir flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-noir p-8 rounded-lg shadow-lg border border-gold">
+        <h1 className="text-3xl font-bold mb-6 text-gold text-center">Administration</h1>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label htmlFor="password" className="block text-gold mb-2">Mot de passe</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-2 rounded bg-noir text-gold border border-gold focus:outline-none focus:border-rose"
+              required
+              disabled={isLoading}
+            />
+          </div>
+          {error && (
+            <div className="text-rose text-sm text-center">
+              {error}
+            </div>
+          )}
+          <button
+            type="submit"
+            className="w-full bg-gold text-noir py-2 px-4 rounded hover:bg-rose transition-colors disabled:opacity-50"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Connexion...' : 'Se connecter'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 } 
