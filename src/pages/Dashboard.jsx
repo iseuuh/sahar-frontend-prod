@@ -29,19 +29,32 @@ export default function Dashboard() {
         const response = await getReservations(token);
         console.log('Réponse API:', response);
 
-        // Gérer différents formats de réponse
-        const reservations = Array.isArray(response) ? response : 
-                           response.data ? response.data :
-                           response.reservations ? response.reservations : [];
-
-        if (!Array.isArray(reservations)) {
-          throw new Error('Format de réponse invalide');
+        // Vérification et transformation des données
+        let reservations = [];
+        if (response) {
+          if (Array.isArray(response)) {
+            reservations = response;
+          } else if (response.data && Array.isArray(response.data)) {
+            reservations = response.data;
+          } else if (response.reservations && Array.isArray(response.reservations)) {
+            reservations = response.reservations;
+          }
         }
+
+        // Validation des données
+        reservations = reservations.filter(res => 
+          res && typeof res === 'object' && 
+          res._id && 
+          res.service && 
+          res.date && 
+          res.time && 
+          res.name
+        );
 
         setData(reservations);
       } catch (err) {
         console.error('Erreur Dashboard:', err);
-        setError(err.message);
+        setError(err.message || 'Erreur lors du chargement des réservations');
         if (err.message === 'Session expirée') {
           localStorage.removeItem('token');
           navigate('/admin');
@@ -73,7 +86,11 @@ export default function Dashboard() {
   return (
     <div className="p-8 text-gold bg-noir min-h-screen">
       <h1 className="text-3xl mb-6">Tableau de bord</h1>
-      <ReservationsTable reservations={data} />
+      {data.length > 0 ? (
+        <ReservationsTable reservations={data} />
+      ) : (
+        <p className="text-center text-gold">Aucune réservation trouvée</p>
+      )}
     </div>
   );
 } 
