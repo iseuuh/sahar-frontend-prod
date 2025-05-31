@@ -17,7 +17,7 @@ export default function BookingForm() {
     date: "",
     time: "",
     name: "",
-    phone: "",
+    phone: "+216",
     email: "",
     notes: ""
   });
@@ -25,17 +25,44 @@ export default function BookingForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  const generateTimeSlots = () => {
+    const slots = [];
+    for (let hour = 9; hour < 19; hour++) {
+      slots.push(`${hour.toString().padStart(2, "0")}:00`);
+      slots.push(`${hour.toString().padStart(2, "0")}:30`);
+    }
+    slots.push("19:00");
+    return slots;
+  };
+
+  const timeSlots = generateTimeSlots();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    if (name === "phone") {
+      const raw = value.replace(/\D/g, "").slice(0, 8);
+      setFormData(prev => ({
+        ...prev,
+        [name]: "+216" + raw
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    
+    if (formData.phone.length !== 12) {
+      setError("Le numéro de téléphone doit être un numéro tunisien valide (+216 + 8 chiffres)");
+      return;
+    }
+    
     setIsSubmitting(true);
 
     try {
@@ -46,7 +73,7 @@ export default function BookingForm() {
         date: "",
         time: "",
         name: "",
-        phone: "",
+        phone: "+216",
         email: "",
         notes: ""
       });
@@ -155,12 +182,9 @@ export default function BookingForm() {
                 required
               >
                 <option value="">Sélectionnez une heure</option>
-                <option value="10:00">10:00</option>
-                <option value="11:00">11:00</option>
-                <option value="14:00">14:00</option>
-                <option value="15:00">15:00</option>
-                <option value="16:00">16:00</option>
-                <option value="17:00">17:00</option>
+                {timeSlots.map(slot => (
+                  <option key={slot} value={slot}>{slot}</option>
+                ))}
               </select>
             </div>
             <div className="flex gap-4">
@@ -197,16 +221,20 @@ export default function BookingForm() {
             </div>
             <div>
               <label className="block text-gold mb-2">Téléphone</label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                pattern="[0-9]{10}"
-                placeholder="0612345678"
-                className="w-full p-2 rounded bg-noir text-gold border border-gold focus:outline-none focus:border-rose"
-                required
-              />
+              <div className="flex items-center space-x-2">
+                <span className="text-lg font-semibold text-gold">+216</span>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone.slice(4)}
+                  onChange={handleChange}
+                  pattern="\d{8}"
+                  title="Entrez 8 chiffres après le +216"
+                  placeholder="xxxxxxxx"
+                  className="w-full p-2 rounded bg-noir text-gold border border-gold focus:outline-none focus:border-rose"
+                  required
+                />
+              </div>
             </div>
             <div>
               <label className="block text-gold mb-2">Email (optionnel)</label>

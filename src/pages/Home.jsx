@@ -11,34 +11,36 @@ export default function Home() {
       <Header />
 
       {/* HERO VIDEO + OVERLAY */}
-      <div className="relative w-full h-[90vh] overflow-hidden flex items-center justify-center">
+      <section className="relative w-full h-[60vh] md:h-[80vh] overflow-hidden">
         {/* Vidéo en arrière-plan */}
         <video
-          className="absolute inset-0 w-full h-full object-cover opacity-70"
+          className="absolute top-0 left-0 w-full h-full object-cover"
           autoPlay
           loop
           muted
           playsInline
+          poster="/images/marble-bg.png"
         >
           <source src="/videos/hero.mp4" type="video/mp4" />
+          Votre navigateur ne supporte pas la lecture de vidéos.
         </video>
 
         {/* Overlay sombre + contenu centré */}
         <div className="absolute inset-0 bg-noir bg-opacity-60 flex flex-col items-center justify-center text-center px-4">
-          <h1 className="text-5xl md:text-7xl font-bold text-gold drop-shadow-xl">
+          <h1 className="text-4xl md:text-7xl font-bold text-gold drop-shadow-xl">
             Sahâr Nail Care
           </h1>
-          <p className="mt-4 text-lg md:text-2xl text-rose drop-shadow-lg">
+          <p className="mt-4 text-base md:text-2xl text-rose drop-shadow-lg">
             L'art de sublimer vos mains.
           </p>
           <Link
             to="/booking"
-            className="mt-8 inline-block bg-gold text-noir py-3 px-8 rounded-full text-lg font-semibold shadow-lg hover:bg-rose transition duration-300"
+            className="mt-8 inline-block bg-gold text-noir py-2 md:py-3 px-6 md:px-8 rounded-full text-base md:text-lg font-semibold shadow-lg hover:bg-rose transition duration-300"
           >
             Réservez maintenant
           </Link>
         </div>
-      </div>
+      </section>
 
       {/* SERVICES */}
       <section id="services" className="container mx-auto px-4 py-12">
