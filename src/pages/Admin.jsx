@@ -10,22 +10,23 @@ export default function Admin() {
 
   const handleLogin = async e => {
     e.preventDefault();
+    console.log('🛡️ handleLogin appelé, pass =', pass);
+    console.log('🔗 API_URL =', process.env.REACT_APP_API_URL);
+    
     try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'admin@sahar.com', password: pass })
+        body: JSON.stringify({ email: 'admin@sahar.com', password: pass }),
       });
-      if (!res.ok) {
-        if (res.status === 401) {
-          throw new Error('Mot de passe incorrect (Admin123!)');
-        }
-        throw new Error('Erreur de connexion');
-      }
-      const { token } = await res.json();
-      localStorage.setItem('token', token);
+      if (!res.ok) throw new Error('Mot de passe incorrect');
+      const data = await res.json();
+      console.log('✅ Réponse login reçu :', data);
+      localStorage.setItem('token', data.token);
+      console.log('✅ Token stocké :', data.token);
       setAuthed(true);
     } catch (err) {
+      console.error('❌ Erreur login:', err);
       alert('Erreur de login : ' + err.message);
     }
   };
@@ -39,7 +40,7 @@ export default function Admin() {
             type="password"
             value={pass}
             onChange={e => setPass(e.target.value)}
-            placeholder="Mot de passe (Admin123!)"
+            placeholder="Mot de passe"
             className="w-full p-2 mb-4 rounded border border-gold bg-noir text-gold"
           />
           <button type="submit" className="w-full py-2 bg-gold text-noir rounded">
