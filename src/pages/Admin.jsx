@@ -1,53 +1,58 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ReservationsTable from '../components/ReservationsTable';
+
+const API_URL = import.meta.env.VITE_API_URL || 'https://sahar-backend.onrender.com';
 
 export default function Admin() {
-  const [pass, setPass] = useState('');
-  const [error, setError] = useState('');
+  const [pwd, setPwd] = useState('');
+  const [errorMsg, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const API_URL = process.env.REACT_APP_API_URL;
-  
-  console.log('API URL:', API_URL); // Debug line
 
   const handleLogin = async e => {
     e.preventDefault();
-    console.log('🛡️ handleLogin appelé, pass =', pass);
-    console.log('🔗 API_URL =', process.env.REACT_APP_API_URL);
-    
+    setLoading(true);
+    setError('');
+
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'admin@sahar.com', password: pass }),
+        body: JSON.stringify({ email: 'admin@sahar.com', password: pwd })
       });
+
       if (!res.ok) throw new Error('Mot de passe incorrect');
-      const data = await res.json();
-      console.log('✅ Réponse login reçu :', data);
-      localStorage.setItem('token', data.token);
-      console.log('✅ Token stocké :', data.token);
-      navigate('/admin/dashboard');
+
+      const { token } = await res.json();
+      localStorage.setItem('token', token);
+      navigate('/dashboard');
     } catch (err) {
-      console.error('❌ Erreur login:', err);
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-noir text-gold">
-      <form onSubmit={handleLogin} className="bg-noir/80 p-8 rounded shadow-lg">
-        <h2 className="text-2xl mb-4">Admin Login</h2>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-noir text-gold">
+      <h1 className="text-3xl mb-6">Accès Admin</h1>
+
+      <form onSubmit={handleLogin} className="flex flex-col gap-4 w-64">
         <input
           type="password"
-          value={pass}
-          onChange={e => setPass(e.target.value)}
           placeholder="Mot de passe"
-          className="w-full p-2 mb-4 rounded border border-gold bg-noir text-gold"
+          value={pwd}
+          onChange={e => setPwd(e.target.value)}
+          className="p-2 rounded bg-gray-800 text-white"
         />
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        <button type="submit" className="w-full py-2 bg-gold text-noir rounded">
-          Se connecter
+        <button
+          type="submit"
+          disabled={loading}
+          className="p-2 bg-gold text-noir rounded font-bold disabled:opacity-50"
+        >
+          {loading ? 'Connexion…' : 'Se connecter'}
         </button>
+        {errorMsg && <p className="text-red-500 text-center">{errorMsg}</p>}
       </form>
     </div>
   );
