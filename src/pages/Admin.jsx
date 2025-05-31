@@ -1,33 +1,32 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { login } from '../lib/api';
+import { loginAdmin } from '../lib/api';
 
 export default function Admin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
-    // Log pour le débogage
-    console.log('Tentative de connexion avec:', {
-      email: 'admin@sahar.com',
-      passwordLength: password.length
-    });
+    const API_URL = process.env.REACT_APP_API_URL;
+    console.log('Admin API_URL:', API_URL);
 
     try {
-      const data = await login({
-        email: 'admin@sahar.com',
-        password: password.trim()
-      });
-
+      console.log('Tentative de connexion...');
+      const data = await loginAdmin(password);
       console.log('Réponse de connexion:', data);
-      localStorage.setItem('token', data.token);
-      navigate('/admin/dashboard');
+      
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        console.log('Token stocké, redirection vers /#/dashboard');
+        window.location.href = '/#/dashboard';
+      } else {
+        console.error('Pas de token dans la réponse');
+        setError('Mot de passe incorrect');
+      }
     } catch (err) {
       console.error('Erreur détaillée de login:', err);
       setError(err.message);
@@ -51,6 +50,7 @@ export default function Admin() {
               className="w-full p-2 rounded bg-noir text-gold border border-gold focus:outline-none focus:border-rose"
               required
               disabled={isLoading}
+              placeholder="Entrez le mot de passe admin"
             />
           </div>
           {error && (

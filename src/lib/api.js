@@ -1,9 +1,5 @@
-// Récupération de l'URL de l'API
-const getApiUrl = () => {
-  const apiUrl = window.API_URL || process.env.REACT_APP_API_URL || 'https://sahar-backend.onrender.com';
-  console.log('API URL utilisée dans api.js:', apiUrl);
-  return apiUrl;
-};
+const API_URL = process.env.REACT_APP_API_URL || 'https://sahar-backend.onrender.com';
+console.log('API URL in api.js:', API_URL);
 
 export const createReservation = async (payload) => {
   if (!payload) {
@@ -11,7 +7,8 @@ export const createReservation = async (payload) => {
   }
 
   try {
-    const response = await fetch(`${getApiUrl()}/api/reservations`, {
+    console.log('Création réservation:', { service: payload.service, date: payload.date });
+    const response = await fetch(`${API_URL}/api/reservations`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -24,7 +21,9 @@ export const createReservation = async (payload) => {
       throw new Error(`API ${response.status}: ${errorData.message || response.statusText}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log('Réservation créée:', { id: data._id });
+    return data;
   } catch (error) {
     console.error('Erreur lors de la création de la réservation:', error);
     throw error;
@@ -33,7 +32,7 @@ export const createReservation = async (payload) => {
 
 export const login = async (credentials) => {
   try {
-    const response = await fetch(`${getApiUrl()}/api/auth/login`, {
+    const response = await fetch(`${API_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -56,9 +55,10 @@ export const login = async (credentials) => {
   }
 };
 
-export const getReservations = async (token) => {
+export const fetchReservations = async (token) => {
   try {
-    const response = await fetch(`${getApiUrl()}/api/reservations`, {
+    console.log('Fetching reservations with token:', token ? 'présent' : 'absent');
+    const response = await fetch(`${API_URL}/api/reservations`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -73,9 +73,42 @@ export const getReservations = async (token) => {
       throw new Error(errorData.message || 'Erreur lors de la récupération des réservations');
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log('Réservations récupérées:', { count: Array.isArray(data) ? data.length : 'format inattendu' });
+    return data;
   } catch (error) {
     console.error('Erreur lors de la récupération des réservations:', error);
+    throw error;
+  }
+};
+
+export const loginAdmin = async (password) => {
+  try {
+    console.log('Tentative de login avec:', { email: 'admin@sahar.com', passwordLength: password.length });
+    const response = await fetch(`${API_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: 'admin@sahar.com',
+        password: password.trim()
+      }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Mot de passe incorrect');
+      }
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erreur de connexion');
+    }
+
+    const data = await response.json();
+    console.log('Login réussi:', { token: data.token ? 'présent' : 'absent' });
+    return data;
+  } catch (error) {
+    console.error('Erreur de login:', error);
     throw error;
   }
 }; 
