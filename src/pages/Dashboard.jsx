@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReservationsTable from '../components/ReservationsTable';
 
-// Utilisation d'une valeur par défaut si VITE_API_URL n'est pas défini
-const API_URL = import.meta.env.VITE_API_URL || 'https://sahar-backend.onrender.com';
+// Utilisation de la variable globale définie dans index.js
+const API_URL = window.API_URL;
 
 // Log pour le débogage
 console.log('Dashboard API_URL:', API_URL);
