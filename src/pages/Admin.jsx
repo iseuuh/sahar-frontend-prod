@@ -16,7 +16,12 @@ export default function Admin() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: 'admin@sahar.com', password: pass })
       });
-      if (!res.ok) throw new Error('Mot de passe incorrect');
+      if (!res.ok) {
+        if (res.status === 401) {
+          throw new Error('Mot de passe incorrect (Admin123!)');
+        }
+        throw new Error('Erreur de connexion');
+      }
       const { token } = await res.json();
       localStorage.setItem('token', token);
       setAuthed(true);
@@ -34,7 +39,7 @@ export default function Admin() {
             type="password"
             value={pass}
             onChange={e => setPass(e.target.value)}
-            placeholder="Mot de passe"
+            placeholder="Mot de passe (Admin123!)"
             className="w-full p-2 mb-4 rounded border border-gold bg-noir text-gold"
           />
           <button type="submit" className="w-full py-2 bg-gold text-noir rounded">
