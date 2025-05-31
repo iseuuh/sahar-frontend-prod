@@ -13,7 +13,7 @@ export default function Dashboard() {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(r => r.json())
-      .then(d => setData(d.data || []))
+      .then(json => setData(json.data || []))
       .finally(() => setLoading(false));
   }, []);
 
