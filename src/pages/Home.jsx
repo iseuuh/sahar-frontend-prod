@@ -6,7 +6,7 @@ import { FaPaintBrush, FaHandSparkles, FaSpa, FaGem, FaRegSmile } from "react-ic
 
 export default function Home() {
   return (
-    <div className="bg-noir min-h-screen font-sans">
+    <div className="bg-noir min-h-screen font-sans relative h-screen">
       <Header />
 
       {/* HERO VIDEO + OVERLAY */}
@@ -14,13 +14,13 @@ export default function Home() {
         {/* Vidéo en arrière-plan */}
         <video
           className="absolute inset-0 w-full h-full object-cover opacity-70"
-          src="/videos/hero.mp4"
-          type="video/mp4"
           autoPlay
           loop
           muted
           playsInline
-        />
+        >
+          <source src="/videos/hero.mp4" type="video/mp4" />
+        </video>
 
         {/* Overlay sombre + contenu centré */}
         <div className="absolute inset-0 bg-noir bg-opacity-60 flex flex-col items-center justify-center text-center px-4">
