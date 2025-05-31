@@ -7,7 +7,7 @@ import './lib/api';  // Déplacé en haut avec les autres imports
 import reportWebVitals from './reportWebVitals';
 
 // Définition de l'URL de l'API avant le rendu
-window.API_URL = import.meta.env.VITE_API_URL || 'https://sahar-backend.onrender.com';
+window.API_URL = process.env.REACT_APP_API_URL || 'https://sahar-backend.onrender.com';
 
 // Log pour le débogage
 console.log('API_URL:', window.API_URL);
