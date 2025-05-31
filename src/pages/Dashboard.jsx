@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReservationsTable from '../components/ReservationsTable';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://sahar-backend.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL;
+if (!API_URL) {
+  throw new Error("⚠️  VITE_API_URL n'est pas défini");
+}
 
 export default function Dashboard() {
   const [data, setData] = useState([]);
@@ -17,31 +20,44 @@ export default function Dashboard() {
       return;
     }
 
+    const controller = new AbortController();
+
     fetch(`${API_URL}/api/reservations`, {
       headers: { 
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      signal: controller.signal
     })
-      .then((r) => {
+      .then(async (r) => {
         if (r.status === 401) {
           localStorage.removeItem('token');
           navigate('/admin');
           throw new Error('Session expirée');
         }
-        if (!r.ok) throw new Error('Impossible de récupérer les réservations');
+        if (!r.ok) {
+          const txt = await r.text();
+          throw new Error(`API ${r.status}: ${txt}`);
+        }
         return r.json();
       })
       .then((json) => {
-        setData(Array.isArray(json.data) ? json.data : []);
+        if (!json || !Array.isArray(json.data)) {
+          throw new Error('Format de réponse invalide');
+        }
+        setData(json.data);
       })
       .catch((err) => {
+        if (err.name === 'AbortError') return;
         setError(err.message);
         if (err.message === 'Session expirée') {
           navigate('/admin');
         }
       })
       .finally(() => setLoading(false));
+
+    return () => controller.abort();
   }, [navigate]);
 
   if (loading) {

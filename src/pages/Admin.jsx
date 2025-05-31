@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://sahar-backend.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL;
+if (!API_URL) {
+  throw new Error("⚠️  VITE_API_URL n'est pas défini");
+}
 
 export default function Admin() {
   const [pwd, setPwd] = useState('');
@@ -9,7 +12,7 @@ export default function Admin() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async e => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -17,17 +20,28 @@ export default function Admin() {
     try {
       const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({ email: 'admin@sahar.com', password: pwd })
       });
 
-      if (!res.ok) throw new Error('Mot de passe incorrect');
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || 'Mot de passe incorrect');
+      }
 
       const { token } = await res.json();
+      if (!token) {
+        throw new Error('Token manquant dans la réponse');
+      }
+
       localStorage.setItem('token', token);
       navigate('/dashboard');
     } catch (err) {
       setError(err.message);
+      console.error('Erreur de login:', err);
     } finally {
       setLoading(false);
     }
@@ -36,18 +50,18 @@ export default function Admin() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-noir text-gold">
       <h1 className="text-3xl mb-6">Accès Admin</h1>
-
       <form onSubmit={handleLogin} className="flex flex-col gap-4 w-64">
         <input
           type="password"
           placeholder="Mot de passe"
           value={pwd}
-          onChange={e => setPwd(e.target.value)}
+          onChange={(e) => setPwd(e.target.value)}
           className="p-2 rounded bg-gray-800 text-white"
+          required
         />
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || pwd.trim() === ''}
           className="p-2 bg-gold text-noir rounded font-bold disabled:opacity-50"
         >
           {loading ? 'Connexion…' : 'Se connecter'}
