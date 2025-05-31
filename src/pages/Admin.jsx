@@ -2,12 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../lib/api';
 
-// Utilisation de la variable globale définie dans index.js
-const API_URL = window.API_URL;
-
-// Log pour le débogage
-console.log('Admin API_URL:', API_URL);
-
 export default function Admin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -28,7 +22,7 @@ export default function Admin() {
     try {
       const data = await login({
         email: 'admin@sahar.com',
-        password: password.trim() // Assurez-vous qu'il n'y a pas d'espaces
+        password: password.trim()
       });
 
       console.log('Réponse de connexion:', data);

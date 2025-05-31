@@ -3,12 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { getReservations } from '../lib/api';
 import ReservationsTable from '../components/ReservationsTable';
 
-// Utilisation de la variable globale définie dans index.js
-const API_URL = window.API_URL;
-
-// Log pour le débogage
-console.log('Dashboard API_URL:', API_URL);
-
 export default function Dashboard() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);

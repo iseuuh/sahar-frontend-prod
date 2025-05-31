@@ -3,14 +3,19 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
-import './lib/api';  // Déplacé en haut avec les autres imports
 import reportWebVitals from './reportWebVitals';
 
-// Définition de l'URL de l'API avant le rendu
-window.API_URL = process.env.REACT_APP_API_URL || 'https://sahar-backend.onrender.com';
+// Définition de l'URL de l'API
+const API_URL = process.env.REACT_APP_API_URL || 'https://sahar-backend.onrender.com';
+
+// Définition globale de l'API_URL
+window.API_URL = API_URL;
 
 // Log pour le débogage
-console.log('API_URL:', window.API_URL);
+console.log('API_URL définie dans index.js:', API_URL);
+
+// Import de l'API après la définition de l'URL
+import './lib/api';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

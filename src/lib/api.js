@@ -1,8 +1,9 @@
-// Utilisation de l'URL de l'API définie globalement
-const API_URL = window.API_URL || 'https://sahar-backend.onrender.com';
-
-// Log pour le débogage
-console.log('API URL in api.js:', API_URL);
+// Récupération de l'URL de l'API
+const getApiUrl = () => {
+  const apiUrl = window.API_URL || process.env.REACT_APP_API_URL || 'https://sahar-backend.onrender.com';
+  console.log('API URL utilisée dans api.js:', apiUrl);
+  return apiUrl;
+};
 
 export const createReservation = async (payload) => {
   if (!payload) {
@@ -10,7 +11,7 @@ export const createReservation = async (payload) => {
   }
 
   try {
-    const response = await fetch(`${API_URL}/api/reservations`, {
+    const response = await fetch(`${getApiUrl()}/api/reservations`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -32,7 +33,7 @@ export const createReservation = async (payload) => {
 
 export const login = async (credentials) => {
   try {
-    const response = await fetch(`${API_URL}/api/auth/login`, {
+    const response = await fetch(`${getApiUrl()}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -57,9 +58,10 @@ export const login = async (credentials) => {
 
 export const getReservations = async (token) => {
   try {
-    const response = await fetch(`${API_URL}/api/reservations`, {
+    const response = await fetch(`${getApiUrl()}/api/reservations`, {
       headers: {
         'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
     });
 
