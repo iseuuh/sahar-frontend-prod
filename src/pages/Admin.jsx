@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { loginAdmin } from '../lib/api';
 
 export default function Admin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -21,8 +23,8 @@ export default function Admin() {
       
       if (data.token) {
         localStorage.setItem('token', data.token);
-        console.log('Token stocké, redirection vers /#/dashboard');
-        window.location.href = '/#/dashboard';
+        console.log('Token stocké, redirection vers /dashboard');
+        navigate('/dashboard', { replace: true });
       } else {
         console.error('Pas de token dans la réponse');
         setError('Mot de passe incorrect');

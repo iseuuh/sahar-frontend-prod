@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { fetchReservations } from '../lib/api';
 
 export default function Dashboard() {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log('Dashboard monté, token:', localStorage.getItem('token') ? 'présent' : 'absent');
     const token = localStorage.getItem('token');
     if (!token) {
-      console.log('Pas de token, redirection vers /#/admin');
-      window.location.href = '/#/admin';
+      console.log('Pas de token, redirection vers /admin');
+      navigate('/admin', { replace: true });
       return;
     }
 
@@ -50,7 +52,7 @@ export default function Dashboard() {
         setError(err.message || 'Erreur lors du chargement des réservations');
         if (err.message === 'Session expirée') {
           localStorage.removeItem('token');
-          window.location.href = '/#/admin';
+          navigate('/admin', { replace: true });
         }
       } finally {
         setLoading(false);
@@ -58,7 +60,7 @@ export default function Dashboard() {
     };
 
     loadReservations();
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return (
