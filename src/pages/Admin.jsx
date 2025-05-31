@@ -5,6 +5,8 @@ export default function Admin() {
   const [pass, setPass] = useState('');
   const [authed, setAuthed] = useState(false);
   const API_URL = process.env.REACT_APP_API_URL;
+  
+  console.log('API URL:', API_URL); // Debug line
 
   const handleLogin = async e => {
     e.preventDefault();
