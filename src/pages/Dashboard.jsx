@@ -1,128 +1,98 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { fetchReservations } from '../lib/api';
+import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import FullCalendar from "@fullcalendar/react";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import api from "../lib/api";
 
-export default function Dashboard() {
+const Dashboard = () => {
+  const navigate = useNavigate();
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log('Dashboard monté, token:', localStorage.getItem('token') ? 'présent' : 'absent');
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.log('Pas de token, redirection vers /admin');
-      navigate('/admin', { replace: true });
-      return;
+  // Charger les réservations
+  const fetchReservations = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return navigate("/admin", { replace: true });
+      const res = await api.getReservations(token);
+      setReservations(res.data);
+    } catch (err) {
+      console.error("Erreur fetch réservations :", err);
+    } finally {
+      setLoading(false);
     }
-
-    const loadReservations = async () => {
-      try {
-        console.log('Chargement des réservations...');
-        const result = await fetchReservations(token);
-        console.log('Réponse API (fetchReservations):', result);
-
-        // Vérification et transformation des données
-        let data = [];
-        if (result) {
-          if (Array.isArray(result)) {
-            data = result;
-          } else if (result.data && Array.isArray(result.data)) {
-            data = result.data;
-          } else if (result.reservations && Array.isArray(result.reservations)) {
-            data = result.reservations;
-          }
-        }
-
-        // Validation des données
-        data = data.filter(res => 
-          res && typeof res === 'object' && 
-          res._id && 
-          res.service && 
-          res.date && 
-          res.time && 
-          res.name
-        );
-
-        console.log('Réservations validées:', data.length);
-        setReservations(data);
-      } catch (err) {
-        console.error('Erreur Dashboard:', err);
-        setError(err.message || 'Erreur lors du chargement des réservations');
-        if (err.message === 'Session expirée') {
-          localStorage.removeItem('token');
-          navigate('/admin', { replace: true });
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadReservations();
   }, [navigate]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-noir text-gold">
-        <p>Chargement des réservations…</p>
-      </div>
-    );
+  useEffect(() => {
+    fetchReservations();
+  }, [fetchReservations]);
+
+  // Transformer les réservations en événements FullCalendar
+  const events = reservations.map(r => ({
+    id: r._id,
+    title: `${r.service} – ${r.name} (${r.status})`,
+    start: `${r.date}T${r.time}`,
+    end: `${r.date}T${addThirtyMinutes(r.time)}`,
+    backgroundColor: r.status === "confirmed" ? "#D4AF37" : r.status === "pending" ? "#FF69B4" : "#999999",
+    borderColor: "#000"
+  }));
+
+  // Ajoute 30 minutes à un créneau de type "HH:mm"
+  function addThirtyMinutes(time) {
+    const [h, m] = time.split(":").map(Number);
+    let date = new Date(0,0,0,h,m);
+    date.setMinutes(date.getMinutes() + 30);
+    const hh = String(date.getHours()).padStart(2, "0");
+    const mm = String(date.getMinutes()).padStart(2, "0");
+    return `${hh}:${mm}`;
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-noir text-rose">
-        <p>Erreur : {error}</p>
-      </div>
+  // Au clic sur un événement, afficher un modal de détail + action
+  const handleEventClick = async (clickInfo) => {
+    const id = clickInfo.event.id;
+    const resObj = reservations.find(r => r._id === id);
+    if (!resObj) return;
+    const newStatus = prompt(
+      `Modifier le statut de la réservation de ${resObj.name} (${resObj.service} à ${resObj.time}) :\n(leave vide pour annuler)\n1 = confirmed\n2 = cancelled`, 
+      resObj.status
     );
-  }
+    if (newStatus === null) return;
+    let statusText = "";
+    if (newStatus === "1") statusText = "confirmed";
+    else if (newStatus === "2") statusText = "cancelled";
+    else return alert("Statut invalide");
 
-  // Pour le débogage, on affiche d'abord le JSON brut
-  if (process.env.NODE_ENV === 'development') {
-    return (
-      <div className="p-8 text-gold bg-noir min-h-screen">
-        <h1 className="text-3xl mb-6">Dashboard Admin (Debug)</h1>
-        <pre className="bg-noir border border-gold p-4 rounded overflow-auto">
-          {JSON.stringify(reservations, null, 2)}
-        </pre>
-      </div>
-    );
-  }
+    try {
+      await api.updateReservation(id, { status: statusText }, localStorage.getItem("token"));
+      alert(`Statut mis à jour en ${statusText}`);
+      fetchReservations();
+    } catch (err) {
+      console.error("Erreur update statut :", err);
+      alert("Erreur lors de la mise à jour du statut");
+    }
+  };
 
+  if (loading) return <p>Chargement...</p>;
   return (
-    <div className="p-8 text-gold bg-noir min-h-screen">
-      <h1 className="text-3xl mb-6">Tableau de bord</h1>
-      {reservations.length === 0 ? (
-        <p className="text-center text-gold">Aucune réservation trouvée</p>
-      ) : (
-        <table className="min-w-full border-collapse">
-          <thead>
-            <tr className="border-b border-gold">
-              <th className="py-3 px-4 text-left">Service</th>
-              <th className="py-3 px-4 text-left">Date</th>
-              <th className="py-3 px-4 text-left">Heure</th>
-              <th className="py-3 px-4 text-left">Nom</th>
-              <th className="py-3 px-4 text-left">Téléphone</th>
-              <th className="py-3 px-4 text-left">Email</th>
-              <th className="py-3 px-4 text-left">Notes</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reservations.map(res => (
-              <tr key={res._id} className="border-b border-gold/30 hover:bg-gold/5">
-                <td className="py-3 px-4">{res.service}</td>
-                <td className="py-3 px-4">{new Date(res.date).toLocaleDateString()}</td>
-                <td className="py-3 px-4">{res.time}</td>
-                <td className="py-3 px-4">{res.name}</td>
-                <td className="py-3 px-4">{res.phone}</td>
-                <td className="py-3 px-4">{res.email}</td>
-                <td className="py-3 px-4">{res.notes || '-'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Dashboard Réservations</h1>
+      <FullCalendar
+        plugins={[timeGridPlugin, interactionPlugin]}
+        initialView="timeGridWeek"
+        slotMinTime="09:00:00"
+        slotMaxTime="19:00:00"
+        slotDuration="00:30:00"
+        allDaySlot={false}
+        height="auto"
+        events={events}
+        eventClick={handleEventClick}
+      />
+      <button onClick={() => navigate("/admin", { replace: true })} className="mt-4 bg-black text-white py-2 px-4 rounded">
+        Se déconnecter
+      </button>
     </div>
   );
-} 
+};
+
+export default Dashboard; 

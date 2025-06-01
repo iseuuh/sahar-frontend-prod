@@ -1,69 +1,69 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { loginAdmin } from '../lib/api';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../lib/api";
 
-export default function Admin() {
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+const Admin = () => {
+  const [email, setEmail] = useState("admin@sahar.com");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setIsLoading(true);
     try {
-      console.log("Tentative de connexion…");
-      const data = await loginAdmin(password);
-      console.log("Réponse de connexion:", data);
-      if (data.token) {
-         localStorage.setItem("token", data.token);
-         console.log("Token stocké, redirection vers /dashboard");
-         navigate("/dashboard", { replace: true });
-      } else {
-         console.error("Pas de token dans la réponse");
-         setError("Mot de passe incorrect");
-      }
+      const result = await api.login({ email, password });
+      localStorage.setItem("token", result.token);
+      navigate("/dashboard", { replace: true });
     } catch (err) {
-      console.error("Erreur détaillée de login:", err);
-      setError(err.message);
+      alert("Erreur de login : " + err.message);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-noir flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-noir p-8 rounded-lg shadow-lg border border-gold">
-        <h1 className="text-3xl font-bold mb-6 text-gold text-center">Administration</h1>
-        <form onSubmit={handleLogin} className="space-y-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-noir text-gold p-4">
+      <div className="w-full max-w-sm">
+        <h1 className="text-2xl font-bold mb-6 text-center">Connexion Admin</h1>
+        <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <label htmlFor="password" className="block text-gold mb-2">Mot de passe</label>
+            <label htmlFor="email" className="block text-sm font-medium mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 bg-noir border border-gold rounded text-gold"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium mb-1">
+              Mot de passe
+            </label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 rounded bg-noir text-gold border border-gold focus:outline-none focus:border-rose"
+              className="w-full px-3 py-2 bg-noir border border-gold rounded text-gold"
               required
-              disabled={isLoading}
-              placeholder="Entrez le mot de passe admin"
             />
           </div>
-          {error && (
-            <div className="text-rose text-sm text-center">
-              {error}
-            </div>
-          )}
           <button
             type="submit"
-            className="w-full bg-gold text-noir py-2 px-4 rounded hover:bg-rose transition-colors disabled:opacity-50"
             disabled={isLoading}
+            className="w-full bg-gold text-noir py-2 px-4 rounded font-medium hover:bg-gold/90 disabled:opacity-50"
           >
-            {isLoading ? 'Connexion...' : 'Se connecter'}
+            {isLoading ? "Connexion..." : "Se connecter"}
           </button>
         </form>
       </div>
     </div>
   );
-} 
+};
+
+export default Admin; 
