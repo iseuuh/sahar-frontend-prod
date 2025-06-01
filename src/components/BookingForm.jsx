@@ -1,9 +1,9 @@
 // src/components/BookingForm.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { SiTiktok } from "react-icons/si";
 import { FaInstagram, FaFacebook } from "react-icons/fa";
-import { createReservation } from "../lib/api";
+import api from "../lib/api";
 
 const services = [
   "Vernis permanent",
@@ -27,18 +27,38 @@ export default function BookingForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [bookedSlots, setBookedSlots] = useState([]);
 
-  const generateTimeSlots = () => {
+  // Charger les créneaux réservés au montage du composant
+  useEffect(() => {
+    const fetchBooked = async () => {
+      try {
+        const res = await api.getReservations();
+        // Filtrer uniquement les réservations confirmées
+        const confirmed = res.data.filter(r => r.status === "confirmed");
+        // Générer un tableau de chaînes "YYYY-MM-DD|HH:mm" pour comparer
+        setBookedSlots(confirmed.map(r => `${r.date}|${r.time}`));
+      } catch (err) {
+        console.error("Impossible de charger les réservations :", err);
+      }
+    };
+    fetchBooked();
+  }, []);
+
+  // Générer les créneaux horaires avec état disabled
+  const generateTimeSlots = (date) => {
     const slots = [];
     for (let hour = 9; hour < 19; hour++) {
-      slots.push(`${hour.toString().padStart(2, "0")}:00`);
-      slots.push(`${hour.toString().padStart(2, "0")}:30`);
+      for (let minute of [0, 30]) {
+        const hh = String(hour).padStart(2, "0");
+        const mm = String(minute).padStart(2, "0");
+        const slotKey = `${date}|${hh}:${mm}`;
+        const disabled = bookedSlots.includes(slotKey);
+        slots.push({ time: `${hh}:${mm}`, disabled });
+      }
     }
-    slots.push("19:00");
     return slots;
   };
-
-  const timeSlots = generateTimeSlots();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,7 +94,7 @@ export default function BookingForm() {
         phone: formData.phone.slice(4)
       };
       console.log("Envoi de la réservation:", { ...reservationData, phone: "XXXXXXXX" });
-      await createReservation(reservationData);
+      await api.createReservation(reservationData);
       setSuccess(true);
       setFormData({
         service: "",
@@ -214,19 +234,26 @@ export default function BookingForm() {
                 className="w-full p-2 rounded bg-noir text-gold border border-gold focus:outline-none focus:border-rose"
                 required
               >
-                <option value="">Sélectionnez une heure</option>
-                {timeSlots.map(slot => (
-                  <option key={slot} value={slot}>{slot}</option>
+                <option value="">Choisissez un créneau</option>
+                {formData.date && generateTimeSlots(formData.date).map(slot => (
+                  <option 
+                    key={slot.time} 
+                    value={slot.time} 
+                    disabled={slot.disabled}
+                    className={slot.disabled ? "text-gray-500" : ""}
+                  >
+                    {slot.time} {slot.disabled ? "(Indisponible)" : ""}
+                  </option>
                 ))}
               </select>
             </div>
-            <div className="flex gap-4">
+            <div className="flex space-x-4">
               <button
                 type="button"
                 onClick={prevStep}
                 className="flex-1 bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition-colors"
               >
-                Retour
+                Précédent
               </button>
               <button
                 type="button"
@@ -254,29 +281,24 @@ export default function BookingForm() {
             </div>
             <div>
               <label className="block text-gold mb-2">Téléphone</label>
-              <div className="flex items-center space-x-2">
-                <span className="text-lg font-semibold text-gold">+216</span>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone.slice(4)}
-                  onChange={handleChange}
-                  pattern="\d{8}"
-                  title="Entrez 8 chiffres après le +216"
-                  placeholder="xxxxxxxx"
-                  className="w-full p-2 rounded bg-noir text-gold border border-gold focus:outline-none focus:border-rose"
-                  required
-                />
-              </div>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full p-2 rounded bg-noir text-gold border border-gold focus:outline-none focus:border-rose"
+                required
+              />
             </div>
             <div>
-              <label className="block text-gold mb-2">Email (optionnel)</label>
+              <label className="block text-gold mb-2">Email</label>
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full p-2 rounded bg-noir text-gold border border-gold focus:outline-none focus:border-rose"
+                required
               />
             </div>
             <div>
@@ -289,20 +311,20 @@ export default function BookingForm() {
                 rows="3"
               />
             </div>
-            <div className="flex gap-4">
+            <div className="flex space-x-4">
               <button
                 type="button"
                 onClick={prevStep}
                 className="flex-1 bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition-colors"
               >
-                Retour
+                Précédent
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
                 className="flex-1 bg-gold text-noir py-2 px-4 rounded hover:bg-rose transition-colors disabled:opacity-50"
               >
-                {isSubmitting ? 'Envoi...' : 'Réserver'}
+                {isSubmitting ? "Envoi..." : "Réserver"}
               </button>
             </div>
           </div>
