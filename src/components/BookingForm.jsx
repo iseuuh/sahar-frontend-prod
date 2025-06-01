@@ -66,7 +66,12 @@ export default function BookingForm() {
     setIsSubmitting(true);
 
     try {
-      await createReservation(formData);
+      const reservationData = {
+        ...formData,
+        phone: formData.phone.slice(4)
+      };
+      console.log("Envoi de la réservation:", { ...reservationData, phone: "XXXXXXXX" });
+      await createReservation(reservationData);
       setSuccess(true);
       setFormData({
         service: "",
