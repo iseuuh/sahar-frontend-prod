@@ -1,5 +1,8 @@
 // src/components/BookingForm.jsx
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { SiTiktok } from "react-icons/si";
+import { FaInstagram, FaFacebook } from "react-icons/fa";
 import { createReservation } from "../lib/api";
 
 const services = [
@@ -116,12 +119,38 @@ export default function BookingForm() {
         <p className="text-gold mb-4">
           Merci pour votre réservation. Nous vous contacterons bientôt pour confirmer votre rendez-vous.
         </p>
-        <button
-          onClick={() => setSuccess(false)}
-          className="w-full bg-gold text-noir py-2 px-4 rounded hover:bg-rose transition-colors"
+        <Link 
+          to="/" 
+          className="mt-4 inline-block w-full bg-gold text-noir py-2 px-4 rounded hover:bg-rose transition-colors text-center"
         >
-          Nouvelle réservation
-        </button>
+          Retour à l'accueil
+        </Link>
+        <div className="flex justify-center space-x-6 mt-6">
+          <a 
+            href="https://www.tiktok.com/@saharnailcare" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="text-2xl text-gold hover:text-rose transition-colors"
+          >
+            <SiTiktok />
+          </a>
+          <a 
+            href="https://www.instagram.com/saharnailcare" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="text-2xl text-gold hover:text-rose transition-colors"
+          >
+            <FaInstagram />
+          </a>
+          <a 
+            href="https://www.facebook.com/saharnailcare" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="text-2xl text-gold hover:text-rose transition-colors"
+          >
+            <FaFacebook />
+          </a>
+        </div>
       </div>
     );
   }
