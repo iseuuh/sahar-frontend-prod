@@ -28,7 +28,7 @@ export default function Admin() {
       console.error("Erreur détaillée de login:", err);
       setError(err.message);
     } finally {
-      setIsLoading (false);
+      setIsLoading(false);
     }
   };
 
