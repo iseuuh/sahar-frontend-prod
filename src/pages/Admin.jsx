@@ -13,23 +13,22 @@ export default function Admin() {
     setError('');
     setIsLoading(true);
     try {
-      console.log('Tentative de connexion...');
+      console.log("Tentative de connexion…");
       const data = await loginAdmin(password);
-      console.log('Réponse de connexion:', data);
-      
+      console.log("Réponse de connexion:", data);
       if (data.token) {
-        localStorage.setItem('token', data.token);
-        console.log('Token stocké, redirection vers /dashboard');
-        navigate('/dashboard', { replace: true });
+         localStorage.setItem("token", data.token);
+         console.log("Token stocké, redirection vers /dashboard");
+         navigate("/dashboard", { replace: true });
       } else {
-        console.error('Pas de token dans la réponse');
-        setError('Mot de passe incorrect');
+         console.error("Pas de token dans la réponse");
+         setError("Mot de passe incorrect");
       }
     } catch (err) {
-      console.error('Erreur détaillée de login:', err);
+      console.error("Erreur détaillée de login:", err);
       setError(err.message);
     } finally {
-      setIsLoading(false);
+      setIsLoading (false);
     }
   };
 
