@@ -12,10 +12,6 @@ export default function Admin() {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-
-    const API_URL = import.meta.env.VITE_API_URL;
-    console.log('Admin API_URL:', API_URL);
-
     try {
       console.log('Tentative de connexion...');
       const data = await loginAdmin(password);
