@@ -142,10 +142,9 @@ export default function BookingForm() {
                 required
               >
                 <option value="">Sélectionnez un service</option>
-                <option value="Manucure">Manucure</option>
-                <option value="Pédicure">Pédicure</option>
-                <option value="Nail Art">Nail Art</option>
-                <option value="Soin des mains">Soin des mains</option>
+                {services.map(service => (
+                  <option key={service} value={service}>{service}</option>
+                ))}
               </select>
             </div>
             <button
