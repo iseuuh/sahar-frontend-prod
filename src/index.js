@@ -1,6 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-// Définition de l'URL de l'API
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
+// Définition de l'URL de l'API (après les imports)
 const API_URL = process.env.REACT_APP_API_URL;
 if (!API_URL) {
   console.error('REACT_APP_API_URL non définie dans les variables d\'environnement');
@@ -8,10 +12,6 @@ if (!API_URL) {
 
 // Log pour le débogage
 console.log('API_URL définie dans index.js:', API_URL);
-
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
