@@ -28,6 +28,9 @@ export default function BookingForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [bookedSlots, setBookedSlots] = useState([]);
+  const [blockedSlots, setBlockedSlots] = useState([]);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipPos, setTooltipPos] = useState({});
 
   // Charger les créneaux réservés au montage du composant
   useEffect(() => {
@@ -45,16 +48,37 @@ export default function BookingForm() {
     fetchBooked();
   }, []);
 
+  // Met à jour les créneaux bloqués à chaque changement de date
+  useEffect(() => {
+    if (!formData.date) {
+      setBlockedSlots([]);
+      return;
+    }
+    const fetchBlocked = async () => {
+      try {
+        const res = await api.getReservationsByDate(formData.date);
+        // Bloquer tous les créneaux "pending" ou "confirmed"
+        const blocked = res.data
+          .filter(r => ["pending", "confirmed"].includes(r.status))
+          .map(r => r.time);
+        setBlockedSlots(blocked);
+      } catch (err) {
+        setBlockedSlots([]);
+      }
+    };
+    fetchBlocked();
+  }, [formData.date]);
+
   // Générer les créneaux horaires avec état disabled
-  const generateTimeSlots = (date) => {
+  const generateTimeSlots = () => {
     const slots = [];
     for (let hour = 9; hour < 19; hour++) {
       for (let minute of [0, 30]) {
         const hh = String(hour).padStart(2, "0");
         const mm = String(minute).padStart(2, "0");
-        const slotKey = `${date}|${hh}:${mm}`;
-        const disabled = bookedSlots.includes(slotKey);
-        slots.push({ time: `${hh}:${mm}`, disabled });
+        const time = `${hh}:${mm}`;
+        const disabled = blockedSlots.includes(time);
+        slots.push({ time, disabled });
       }
     }
     return slots;
@@ -64,10 +88,15 @@ export default function BookingForm() {
     const { name, value } = e.target;
     
     if (name === "phone") {
-      const raw = value.replace(/\D/g, "").slice(0, 8);
+      // Force un seul +216 au début, puis 8 chiffres max
+      let cleaned = value.replace(/[^\d]/g, "");
+      if (cleaned.startsWith("216")) {
+        cleaned = cleaned.slice(3);
+      }
+      cleaned = cleaned.slice(0, 8);
       setFormData(prev => ({
         ...prev,
-        [name]: "+216" + raw
+        [name]: "+216" + cleaned
       }));
     } else {
       setFormData(prev => ({
@@ -75,6 +104,16 @@ export default function BookingForm() {
         [name]: value
       }));
     }
+  };
+
+  const handleTimeSelect = (e) => {
+    const value = e.target.value;
+    if (blockedSlots.includes(value)) {
+      setShowTooltip(true);
+      setTimeout(() => setShowTooltip(false), 2000);
+      return;
+    }
+    setFormData(prev => ({ ...prev, time: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -230,22 +269,20 @@ export default function BookingForm() {
               <select
                 name="time"
                 value={formData.time}
-                onChange={handleChange}
+                onChange={handleTimeSelect}
                 className="w-full p-2 rounded bg-noir text-gold border border-gold focus:outline-none focus:border-rose"
                 required
               >
-                <option value="">Choisissez un créneau</option>
-                {formData.date && generateTimeSlots(formData.date).map(slot => (
-                  <option 
-                    key={slot.time} 
-                    value={slot.time} 
-                    disabled={slot.disabled}
-                    className={slot.disabled ? "text-gray-500" : ""}
-                  >
-                    {slot.time} {slot.disabled ? "(Indisponible)" : ""}
+                <option value="">Sélectionnez une heure</option>
+                {generateTimeSlots().map(slot => (
+                  <option key={slot.time} value={slot.time} disabled={slot.disabled} style={slot.disabled ? { color: '#aaa' } : {}}>
+                    {slot.time} {slot.disabled ? ' (indisponible)' : ''}
                   </option>
                 ))}
               </select>
+              {showTooltip && (
+                <div className="text-xs text-rose mt-1">Ce créneau est déjà réservé</div>
+              )}
             </div>
             <div className="flex space-x-4">
               <button

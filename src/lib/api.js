@@ -30,5 +30,7 @@ export default {
   // Supprimer une réservation (optionnel)
   deleteReservation: (id, token) => request(`/api/reservations/${id}`, "DELETE", null, token),
   // Login admin
-  login: (payload) => request("/api/auth/login", "POST", payload)
+  login: (payload) => request("/api/auth/login", "POST", payload),
+  // Récupérer les réservations d'une date précise
+  getReservationsByDate: (date, token) => request(`/api/reservations?date=${date}`, "GET", null, token)
 }; 
