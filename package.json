@@ -18,9 +18,12 @@
     "tailwindcss": "^4.1.8"
   },
   "devDependencies": {
+    "@types/node": "^22.15.29",
+    "@types/react": "^19.1.6",
     "autoprefixer": "^10.4.14",
     "eslint": "8.37.0",
     "eslint-config-next": "13.5.0",
-    "postcss": "^8.4.24"
+    "postcss": "^8.4.24",
+    "typescript": "^5.8.3"
   }
 }
