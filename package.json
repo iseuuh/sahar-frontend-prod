@@ -1,8 +1,15 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
+  "name": "sahar-frontend-prod",
+  "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
   "dependencies": {
+<<<<<<< HEAD
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@fullcalendar/daygrid": "^6.1.17",
@@ -29,29 +36,23 @@
     "recharts": "^2.15.3",
     "tailwindcss": "^3.4.1",
     "web-vitals": "^2.1.4"
+=======
+    "classnames": "^2.3.2",
+    "next": "^13.5.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.8.0",
+    "react-phone-input-2": "^2.15.1",
+    "tailwindcss": "^4.1.8"
+>>>>>>> 64536a417c3e1e09236b0b4a207dc47448d83cf1
   },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "@types/react": "^19.1.6",
+    "autoprefixer": "^10.4.14",
+    "eslint": "8.37.0",
+    "eslint-config-next": "13.5.0",
+    "postcss": "^8.4.24",
+    "typescript": "^5.8.3"
   }
 }
