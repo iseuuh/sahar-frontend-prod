@@ -1,0 +1,78 @@
+/* --- Fade + Slide pour apparition/disparition des cards (TransitionGroup/CSSTransition) --- */
+.fade-slide-enter {
+  opacity: 0;
+  transform: translateY(32px) scale(0.97);
+}
+.fade-slide-enter-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 350ms cubic-bezier(.4,0,.2,1), transform 350ms cubic-bezier(.4,0,.2,1);
+}
+.fade-slide-exit {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.fade-slide-exit-active {
+  opacity: 0;
+  transform: translateY(32px) scale(0.97);
+  transition: opacity 300ms cubic-bezier(.4,0,.2,1), transform 300ms cubic-bezier(.4,0,.2,1);
+}
+
+/* --- Fade pour ouverture/fermeture des modales (plein écran mobile) --- */
+.fade-modal-enter {
+  opacity: 0;
+}
+.fade-modal-enter-active {
+  opacity: 1;
+  transition: opacity 350ms cubic-bezier(.4,0,.2,1);
+}
+.fade-modal-exit {
+  opacity: 1;
+}
+.fade-modal-exit-active {
+  opacity: 0;
+  transition: opacity 300ms cubic-bezier(.4,0,.2,1);
+}
+
+/* --- Hover doux sur les boutons d’action (éditer, supprimer, valider) --- */
+.btn-action {
+  transition: background 0.2s cubic-bezier(.4,0,.2,1), color 0.2s cubic-bezier(.4,0,.2,1), box-shadow 0.2s;
+}
+.btn-action:hover,
+.btn-action:focus-visible {
+  filter: brightness(1.08);
+  box-shadow: 0 2px 8px 0 rgba(200, 166, 107, 0.12);
+  outline: none;
+}
+
+/* --- Feedback visuel sur la sélection d’une card (highlight) --- */
+.card-selected {
+  box-shadow: 0 0 0 3px #FFD70055;
+  border-color: #FFD700 !important;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+/* --- Animation d’apparition pour la modale (slide up + fade) --- */
+.modal-content-anim {
+  opacity: 0;
+  transform: translateY(48px) scale(0.98);
+  transition: opacity 0.3s cubic-bezier(.4,0,.2,1), transform 0.3s cubic-bezier(.4,0,.2,1);
+}
+.fade-modal-enter-active .modal-content-anim,
+.fade-modal-enter-done .modal-content-anim {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* --- Animation d’apparition pour le FAB (Floating Action Button) --- */
+.fab-fade-in {
+  opacity: 0;
+  transform: scale(0.8);
+  animation: fabIn 0.4s cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes fabIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
