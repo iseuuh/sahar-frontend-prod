@@ -713,11 +713,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
-.card-highlight {
-  animation: highlightFlash 1s;
-}
-@keyframes highlightFlash {
-  0% { box-shadow: 0 0 0 4px #FFD70099; }
-  100% { box-shadow: 0 0 0 0 transparent; }
-}
