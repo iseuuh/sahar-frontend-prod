@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { SiTiktok } from "react-icons/si";
 import { FaInstagram, FaFacebook } from "react-icons/fa";
 import api from "../lib/api";
+import TunisianPhoneInput from "./TunisianPhoneInput"; // Ajout de l'import
 
 const services = [
   "Vernis permanent",
@@ -20,7 +21,7 @@ export default function BookingForm() {
     date: "",
     time: "",
     name: "",
-    phone: "+216",
+    phone: "", // Stocke uniquement les 8 chiffres
     email: "",
     notes: ""
   });
@@ -62,38 +63,37 @@ export default function BookingForm() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
-    if (name === "phone") {
-      const raw = value.replace(/\D/g, "").slice(0, 8);
-      setFormData(prev => ({
-        ...prev,
-        [name]: "+216" + raw
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Ajout d'un handler spécifique pour le champ téléphone
+  const handlePhoneChange = (digits) => {
+    setFormData(prev => ({
+      ...prev,
+      phone: digits // Stocke uniquement les 8 chiffres
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    
-    if (formData.phone.length !== 12) {
-      setError("Le numéro de téléphone doit être un numéro tunisien valide (+216 + 8 chiffres)");
+
+    if (formData.phone.length !== 8) {
+      setError("Le numéro de téléphone doit comporter exactement 8 chiffres.");
       return;
     }
-    
+
     setIsSubmitting(true);
 
     try {
       const reservationData = {
         ...formData,
-        phone: formData.phone.slice(4)
+        phone: `+216${formData.phone}` // Envoie le numéro complet au backend
       };
-      console.log("Envoi de la réservation:", { ...reservationData, phone: "XXXXXXXX" });
+      console.log("Envoi de la réservation:", { ...reservationData, phone: "+216XXXXXXXX" });
       await api.createReservation(reservationData);
       setSuccess(true);
       setFormData({
@@ -101,7 +101,7 @@ export default function BookingForm() {
         date: "",
         time: "",
         name: "",
-        phone: "+216",
+        phone: "",
         email: "",
         notes: ""
       });
@@ -281,13 +281,9 @@ export default function BookingForm() {
             </div>
             <div>
               <label className="block text-gold mb-2">Téléphone</label>
-              <input
-                type="tel"
-                name="phone"
+              <TunisianPhoneInput
                 value={formData.phone}
-                onChange={handleChange}
-                className="w-full p-2 rounded bg-noir text-gold border border-gold focus:outline-none focus:border-rose"
-                required
+                onChange={handlePhoneChange}
               />
             </div>
             <div>
